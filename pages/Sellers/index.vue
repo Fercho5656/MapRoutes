@@ -105,14 +105,35 @@ const onAddSelected = (sellerId: number) => {
 const onDeleteSelected = async () => {
   if (!confirm('¿Estás seguro de eliminar los vendedores seleccionados?')) return
   await Promise.all(selectedSellers.value.map((id) => deleteSeller(id)))
+  useToast({
+    title: 'Vendedores eliminados',
+    text: 'Los vendedores seleccionados han sido eliminados',
+    status: 'success',
+    autotimeout: 5000,
+    autoclose: true,
+  })
   sellers.value = sellers.value?.filter((seller) => !selectedSellers.value.includes(seller.id!))
   selectedSellers.value = []
 }
 
 const onAddSeller = async () => {
   const newSeller = await addSeller({ name: sellerName.value })
-  if (newSeller.message) alert(`Error ${newSeller.message}`)
-  alert(`Vendedor añadido ${newSeller.name}`)
+  if (newSeller.message) {
+    useToast({
+      title: 'Error al añadir vendedor',
+      text: newSeller.message,
+      status: 'error',
+      autotimeout: 5000,
+      autoclose: true,
+    })
+  }
+  useToast({
+    title: 'Vendedor añadido',
+    text: `Se ha añadido el vendedor ${newSeller.name}`,
+    status: 'success',
+    autotimeout: 5000,
+    autoclose: true,
+  })
   sellers.value?.push(newSeller)
   showSellerModal.value = false
   sellerName.value = ''
@@ -126,8 +147,22 @@ const onBeforeUpdateSeller = (sellerId: number) => {
 
 const onUpdateSeller = async () => {
   const updatedSeller = await updateSeller(sellerToEdit.value!, { name: sellerName.value })
-  if (updatedSeller.message) alert(`Error ${updatedSeller.message}`)
-  alert(`Vendedor actualizado ${updatedSeller.name}`)
+  if (updatedSeller.message) {
+    useToast({
+      title: 'Error al actualizar vendedor',
+      text: updatedSeller.message,
+      status: 'error',
+      autotimeout: 5000,
+      autoclose: true,
+    })
+  }
+  useToast({
+    title: 'Vendedor actualizado',
+    text: `Vendedor ${updatedSeller.name} actualizado`,
+    status: 'success',
+    autotimeout: 5000,
+    autoclose: true,
+  })
   sellers.value = sellers.value?.map((seller) => seller.id === sellerToEdit.value ? updatedSeller : seller)
   showEditSellerModal.value = false
   sellerName.value = ''
@@ -137,8 +172,22 @@ const onUpdateSeller = async () => {
 const onDeleteSeller = async (sellerId: number) => {
   if (!confirm('¿Estás seguro de eliminar este vendedor?')) return
   const deletedSeller = await deleteSeller(sellerId)
-  if (deletedSeller.message) alert(`Error ${deletedSeller.message}`)
-  alert(`Vendedor eliminado ${deletedSeller.name}`)
+  if (deletedSeller.message) {
+    useToast({
+      title: 'Error',
+      text: `Error ${deletedSeller.message}`,
+      status: 'error',
+      autotimeout: 5000,
+      autoclose: true,
+    })
+  }
+  useToast({
+    title: 'Vendedor eliminado',
+    text: `Vendedor ${deletedSeller.name} eliminado`,
+    status: 'success',
+    autotimeout: 5000,
+    autoclose: true,
+  })
   sellers.value = sellers.value?.filter(seller => seller.id !== sellerId)
 }
 
