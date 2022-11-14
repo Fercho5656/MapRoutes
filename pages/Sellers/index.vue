@@ -119,7 +119,7 @@ const onDeleteSelected = async () => {
 const onAddSeller = async () => {
   const newSeller = await addSeller({ name: sellerName.value })
   if (newSeller.message) {
-    useToast({
+    return useToast({
       title: 'Error al añadir vendedor',
       text: newSeller.message,
       status: 'error',
@@ -148,7 +148,7 @@ const onBeforeUpdateSeller = (sellerId: number) => {
 const onUpdateSeller = async () => {
   const updatedSeller = await updateSeller(sellerToEdit.value!, { name: sellerName.value })
   if (updatedSeller.message) {
-    useToast({
+    return useToast({
       title: 'Error al actualizar vendedor',
       text: updatedSeller.message,
       status: 'error',
@@ -173,7 +173,7 @@ const onDeleteSeller = async (sellerId: number) => {
   if (!confirm('¿Estás seguro de eliminar este vendedor?')) return
   const deletedSeller = await deleteSeller(sellerId)
   if (deletedSeller.message) {
-    useToast({
+    return useToast({
       title: 'Error',
       text: `Error ${deletedSeller.message}`,
       status: 'error',

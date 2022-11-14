@@ -119,7 +119,7 @@ const onDeleteSelected = async () => {
 const onAddZone = async () => {
   const newZone = await addZone({ name: zoneName.value })
   if (newZone.message) {
-    useToast({
+    return useToast({
       title: 'Error',
       text: newZone.message,
       status: 'error',
@@ -149,7 +149,7 @@ const onBeforeUpdateZone = (zoneId: number) => {
 const onUpdateZone = async () => {
   const updatedZone = await updateZone(zoneToEdit.value!, { name: zoneName.value })
   if (updatedZone.message) {
-    useToast({
+    return useToast({
       title: 'Error',
       text: updatedZone.message,
       status: 'error',
@@ -174,7 +174,7 @@ const onDeleteZone = async (zoneId: number) => {
   if (!confirm('¿Estás seguro de eliminar esta zona?')) return
   const deletedZone = await deleteZone(zoneId)
   if (deletedZone.message) {
-    useToast({
+    return useToast({
       title: 'Error',
       text: deletedZone.message,
       status: 'error',
