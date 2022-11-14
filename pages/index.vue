@@ -1,5 +1,5 @@
 <template>
-  <div class="p-5 grid grid-cols-2 grid-rows-2 gap-5">
+  <div class="h-1/2 p-5 grid grid-cols-2 grid-rows-2 gap-5">
     <!-- <button @click="toggleDark()"> 
       Change
     </button> -->
