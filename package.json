@@ -16,6 +16,7 @@
     "nuxt": "3.0.0-rc.13"
   },
   "dependencies": {
+    "@geoapify/geocoder-autocomplete": "^1.4.2",
     "@heroicons/vue": "^2.0.13",
     "mapbox-gl": "^2.10.0",
     "simple-notify": "0.5.5"
