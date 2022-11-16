@@ -7,11 +7,15 @@ export default defineNuxtConfig({
   routeRules: {
     '/map/**': {
       ssr: false,
+    },
+    '/clients/**': {
+      ssr: true,
     }
   },
   runtimeConfig: {
     public: {
       MAPBOX_PUBLIC_TOKEN: "pk.eyJ1IjoiZmVyY2hvNTY1NiIsImEiOiJjbGFleHVuaW8wOWdhM3hxcmZtNGY3djN1In0.vkQNBTIk8v50i7QzKvnrDQ",
+      GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY,
     }
   }
 })
