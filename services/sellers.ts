@@ -20,6 +20,7 @@ export const addSeller = async (seller: ISeller): Promise<ISupabaseQuery<ISeller
       ...seller
     })
     .select()
+    .single()
 
   return { data, error }
 }
@@ -34,7 +35,8 @@ export const updateSeller = async (sellerId: number, newSeller: ISeller): Promis
     })
     .eq('id', sellerId)
     .select()
-
+    .single()
+    
   return { data, error }
 }
 

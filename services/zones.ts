@@ -17,6 +17,8 @@ export const addZone = async (zone: IZone): Promise<ISupabaseQuery<IZone>> => {
   const { data, error } = await client
     .from<IZone>('zone')
     .insert(zone)
+    .select()
+    .single()
 
   return { data, error }
 }
@@ -27,7 +29,8 @@ export const updateZone = async (zoneId: number, newZone: IZone): Promise<ISupab
     .from<IZone>('zone')
     .update(newZone)
     .eq('id', zoneId)
-
+    .select()
+    .single()
   return { data, error }
 }
 

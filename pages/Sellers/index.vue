@@ -81,6 +81,7 @@
 
 <script setup lang="ts">
 import { PencilIcon, TrashIcon, ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import IClient from '~~/interfaces/IClient';
 import ISeller from '~~/interfaces/ISeller';
 import { getSellers, addSeller, deleteSeller, updateSeller } from '~~/services/sellers'
 useHead({
@@ -118,10 +119,10 @@ const onDeleteSelected = async () => {
 
 const onAddSeller = async () => {
   const newSeller = await addSeller({ name: sellerName.value })
-  if (newSeller.message) {
+  if (newSeller.error) {
     return useToast({
       title: 'Error al añadir vendedor',
-      text: newSeller.message,
+      text: newSeller.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -129,12 +130,12 @@ const onAddSeller = async () => {
   }
   useToast({
     title: 'Vendedor añadido',
-    text: `Se ha añadido el vendedor ${newSeller.name}`,
+    text: 'Se ha añadido el vendedor',
     status: 'success',
     autotimeout: 5000,
     autoclose: true,
   })
-  sellers.value?.push(newSeller)
+  sellers.value?.push(newSeller.data as ISeller)
   showSellerModal.value = false
   sellerName.value = ''
 }
@@ -147,10 +148,10 @@ const onBeforeUpdateSeller = (sellerId: number) => {
 
 const onUpdateSeller = async () => {
   const updatedSeller = await updateSeller(sellerToEdit.value!, { name: sellerName.value })
-  if (updatedSeller.message) {
+  if (updatedSeller.error) {
     return useToast({
       title: 'Error al actualizar vendedor',
-      text: updatedSeller.message,
+      text: updatedSeller.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -158,12 +159,12 @@ const onUpdateSeller = async () => {
   }
   useToast({
     title: 'Vendedor actualizado',
-    text: `Vendedor ${updatedSeller.name} actualizado`,
+    text: 'Vendedor actualizado',
     status: 'success',
     autotimeout: 5000,
     autoclose: true,
   })
-  sellers.value = sellers.value?.map((seller) => seller.id === sellerToEdit.value ? updatedSeller : seller)
+  sellers.value = sellers.value?.map((seller: ISeller) => seller.id === sellerToEdit.value ? updatedSeller.data as IClient : seller)
   showEditSellerModal.value = false
   sellerName.value = ''
   sellerToEdit.value = 0
@@ -172,10 +173,10 @@ const onUpdateSeller = async () => {
 const onDeleteSeller = async (sellerId: number) => {
   if (!confirm('¿Estás seguro de eliminar este vendedor?')) return
   const deletedSeller = await deleteSeller(sellerId)
-  if (deletedSeller.message) {
+  if (deletedSeller.error) {
     return useToast({
       title: 'Error',
-      text: `Error ${deletedSeller.message}`,
+      text: `Error ${deletedSeller.error.message}`,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -183,7 +184,7 @@ const onDeleteSeller = async (sellerId: number) => {
   }
   useToast({
     title: 'Vendedor eliminado',
-    text: `Vendedor ${deletedSeller.name} eliminado`,
+    text: 'Vendedor eliminado',
     status: 'success',
     autotimeout: 5000,
     autoclose: true,
@@ -192,7 +193,7 @@ const onDeleteSeller = async (sellerId: number) => {
 }
 
 onMounted(async () => {
-  sellers.value = await getSellers()
+  sellers.value = await getSellers().then(res => res.data as ISeller[])
 })
 </script>
 

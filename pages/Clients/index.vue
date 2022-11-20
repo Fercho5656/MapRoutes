@@ -1,33 +1,44 @@
 <template>
   <div>
     <f-modal :show="showClientModal" @close="showClientModal = false">
-      <div class="flex flex-col gap-y-5">
+      <div class="flex flex-col gap-y-5 items-stretch">
         <p class="text-center text-2xl dark:text-gray-200">Nuevo Cliente</p>
-        <div class="flex gap-x-3">
-          <label class="dark:text-gray-200 text-lg">Nombre del Cliente</label>
-          <input @keyup.enter="onAddClient" type="text" v-model="clientName" />
+        <div class="flex gap-x-3 justify-between flex-1">
+          <label class="dark:text-gray-200 text-lg w-full">Nombre del Cliente</label>
+          <input class="w-full" @keyup.enter="onAddClient" type="text" v-model="clientName" />
         </div>
-        <div class="relative" id="autocomplete" ref="autocomplete"> </div>
+        <div class="flex gap-x-3 justify-between flex-1 w-full">
+          <label class="dark:text-gray-200 text-lg w-full">Dirección</label>
+          <div class="relative w-full" id="autocomplete" ref="autocomplete"> </div>
+        </div>
+        <div class="flex gap-x-3 justify-between flex-1 w-full">
+          <label class="dark:text-gray-200 text-lg w-full">Zona</label>
+          <select class="w-full" v-model="clientZoneId">
+            <option v-for="zone in zones" :value="zone.id" :key="zone.id">
+              {{ zone.name }}
+            </option>
+          </select>
+        </div>
         <f-button @click.once="onAddClient">Añadir Cliente</f-button>
       </div>
     </f-modal>
-    <f-modal :show="showEditZoneModal" @close="showEditZoneModal = false">
+    <f-modal :show="showEditClientModal" @close="showEditClientModal = false">
       <div class="flex flex-col gap-y-5">
         <p class="text-center text-2xl dark:text-gray-200">Editar Zona</p>
         <div class="flex gap-x-3">
           <label class="dark:text-gray-200 text-lg">Nombre de la zona</label>
-          <input @keyup.enter="onUpdateZone" type="text" v-model="clientName" />
+          <input @keyup.enter="onUpdateClient" type="text" v-model="clientName" />
         </div>
-        <f-button @click.once="onUpdateZone">Editar Zona</f-button>
+        <f-button @click.once="onUpdateClient">Editar Zona</f-button>
       </div>
     </f-modal>
     <header class="w-full relative flex gap-x-5 justify-center items-start">
       <nuxt-link to="/" class="absolute left-0">
         <arrow-left-icon class="w-10 h-w-10 dark:text-white" />
       </nuxt-link>
-      <h1 class="text-3xl dark:text-gray-200 font-semibold text-center mb-5">Zonas</h1>
+      <h1 class="text-3xl dark:text-gray-200 font-semibold text-center mb-5">Clientes</h1>
       <f-button @click="showClientModal = true">Añadir Zona</f-button>
-      <f-button @click="onDeleteSelected" :disabled="selectedZones.length <= 0" color="danger">Eliminar
+      <f-button @click="onDeleteSelected" :disabled="selectedClients.length <= 0" color="danger">Eliminar
         Zonas</f-button>
     </header>
     <f-table>
@@ -44,32 +55,48 @@
             Nombre
           </th>
           <th scope="col" class="py-3 px-6 text-center">
+            Dirección
+          </th>
+          <th scope="col" class="py-3 px-6 text-center">
+            Zona
+          </th>
+          <th scope="col" class="py-3 px-6 text-center">
             Acción
           </th>
         </tr>
       </f-thead>
       <tbody>
         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-          v-for="zona in zones" :key="zona.id">
+          v-for="client in clients" :key="client.id">
           <td class="p-4 w-4">
             <div class="flex items-center">
-              <input @click="onAddSelected(zona.id!)" id="checkbox-table-search-1" type="checkbox"
+              <input @click="onAddSelected(client.id!)" id="checkbox-table-search-1" type="checkbox"
                 class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
               <label for="checkbox-table-search-1" class="sr-only">checkbox</label>
             </div>
           </td>
-          <td scope="row" class="flex items-center py-4 px-6 text-gray-900 whitespace-nowrap dark:text-white">
+          <td class="p-4 w-4">
             <div class="pl-3 w-full">
-              <p class="text-center text-base font-semibold">{{ zona.name }}</p>
+              <p class="text-center text-base font-semibold">{{ client.name }}</p>
             </div>
           </td>
-          <td class="py-4 px-6">
+          <td class="p-4 w-4">
+            <div class="pl-3 w-full">
+              <p class="text-center text-base font-semibold">{{ client.address }}</p>
+            </div>
+          </td>
+          <td class="p-4 w-4">
+            <div class="pl-3 w-full">
+              <p class="text-center text-base font-semibold">{{ client.zone?.name }}</p>
+            </div>
+          </td>
+          <td class="p-4 w-4">
             <div class="flex items-center justify-around">
-              <button @click="onBeforeUpdateZone(zona.id!)" class="h-7 w-7 text-yellow-500">
+              <button @click="onBeforeUpdateClient(client.id!)" class="h-7 w-7 text-yellow-500">
                 <!-- Modal toggle -->
                 <PencilIcon />
               </button>
-              <button @click="onDeleteZone(zona.id!)" class="h-7 w-7 text-red-500">
+              <button @click="onDeleteClient(client.id!)" class="h-7 w-7 text-red-500">
                 <TrashIcon />
               </button>
             </div>
@@ -82,36 +109,43 @@
 
 <script setup lang="ts">
 import { PencilIcon, TrashIcon, ArrowLeftIcon } from '@heroicons/vue/24/solid';
-import IZone from '~~/interfaces/IZone';
-import { getZones, addZone, deleteZone, updateZone } from '~~/services/zones'
+import IClient from '~~/interfaces/IClient';
+import { getClients, addClient, deleteClient, updateClient } from '~~/services/clients'
+import { getZones } from '~~/services/zones';
 import { GeocoderAutocomplete } from '@geoapify/geocoder-autocomplete'
 import '@geoapify/geocoder-autocomplete/styles/minimal.css'
+import IZone from '~~/interfaces/IZone';
 
 useHead({
   title: 'Zonas'
 })
 
+const clients = ref<IClient[]>()
 const zones = ref<IZone[]>()
-const selectedZones = ref<number[]>([])
-const zoneToEdit = ref<number>()
+const selectedClients = ref<number[]>([])
+const clientToEdit = ref<number>()
 const showClientModal = ref<boolean>(false)
-const showEditZoneModal = ref<boolean>(false)
+const showEditClientModal = ref<boolean>(false)
 const clientName = ref('')
+const clientAddress = ref('')
+const clientLat = ref('')
+const clientLng = ref('')
+const clientZoneId = ref<number>(0)
 const config = useRuntimeConfig()
 const autocomplete = ref<HTMLElement | null>()
 const autocompleter = ref<GeocoderAutocomplete>()
 
-const onAddSelected = (zoneId: number) => {
-  if (selectedZones.value.includes(zoneId)) {
-    selectedZones.value = selectedZones.value.filter((id) => id !== zoneId)
+const onAddSelected = (clientId: number) => {
+  if (selectedClients.value.includes(clientId)) {
+    selectedClients.value = selectedClients.value.filter((id) => id !== clientId)
   } else {
-    selectedZones.value.push(zoneId)
+    selectedClients.value.push(clientId)
   }
 }
 
 const onDeleteSelected = async () => {
-  if (!confirm('¿Estás seguro de eliminar las zonas seleccionadas?')) return
-  await Promise.all(selectedZones.value.map((id) => deleteZone(id)))
+  if (!confirm('¿Estás seguro de eliminar los clients seleccionados?')) return
+  await Promise.all(selectedClients.value.map((id) => deleteClient(id)))
   useToast({
     title: 'Zonas eliminadas',
     text: 'Las zonas seleccionadas han sido eliminadas',
@@ -119,16 +153,16 @@ const onDeleteSelected = async () => {
     autotimeout: 5000,
     autoclose: true,
   })
-  zones.value = zones.value?.filter((zone) => !selectedZones.value.includes(zone.id!))
-  selectedZones.value = []
+  clients.value = clients.value?.filter((zone) => !selectedClients.value.includes(zone.id!))
+  selectedClients.value = []
 }
 
 const onAddClient = async () => {
-  const newZone = await addZone({ name: clientName.value })
-  if (newZone.message) {
+  const newClient = await addClient({ name: clientName.value, address: clientAddress.value, lat: clientLat.value, lng: clientLng.value, zone_id: clientZoneId.value })
+  if (newClient.error) {
     return useToast({
       title: 'Error',
-      text: newZone.message,
+      text: newClient.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -136,85 +170,82 @@ const onAddClient = async () => {
   }
 
   useToast({
-    title: 'Zona añadida',
-    text: 'La zona ha sido añadida correctamente',
+    title: 'Cliente añadido',
+    text: 'El cliente ha sido añadido correctamente',
     status: 'success',
     autotimeout: 5000,
     autoclose: true,
   })
-  zones.value?.push(newZone)
+  console.log(newClient)
+  clients.value?.push(newClient.data as IClient)
   showClientModal.value = false
   clientName.value = ''
 }
 
-const onBeforeUpdateZone = (zoneId: number) => {
-  clientName.value = zones.value?.find((zone) => zone.id === zoneId)?.name || ''
-  zoneToEdit.value = zoneId
-  showEditZoneModal.value = true
+const onBeforeUpdateClient = (clientId: number) => {
+  clientName.value = clients.value?.find((client) => client.id === clientId)?.name || ''
+  clientToEdit.value = clientId
+  showEditClientModal.value = true
 }
 
-const onUpdateZone = async () => {
-  const updatedZone = await updateZone(zoneToEdit.value!, { name: clientName.value })
-  if (updatedZone.message) {
+const onUpdateClient = async () => {
+  const updatedClient = await addClient({ name: clientName.value, address: clientAddress.value, lat: clientLat.value, lng: clientLng.value, zone_id: clientZoneId.value })
+  if (updatedClient.error) {
     return useToast({
       title: 'Error',
-      text: updatedZone.message,
+      text: updatedClient.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
     })
   }
   useToast({
-    title: 'Zona actualizada',
-    text: 'La zona ha sido actualizada correctamente',
+    title: 'Cliente actualizado',
+    text: 'El ciente ha sido actualizado correctamente',
     status: 'success',
     autotimeout: 5000,
     autoclose: true,
   })
-  zones.value = zones.value?.map((zone) => zone.id === zoneToEdit.value ? updatedZone : zone)
-  showEditZoneModal.value = false
+  clients.value = clients.value?.map((client: IClient) => client.id === clientToEdit.value ? updatedClient.data as IClient : client)
+  showEditClientModal.value = false
   clientName.value = ''
-  zoneToEdit.value = 0
+  clientToEdit.value = 0
 }
 
-const onDeleteZone = async (zoneId: number) => {
-  if (!confirm('¿Estás seguro de eliminar esta zona?')) return
-  const deletedZone = await deleteZone(zoneId)
-  if (deletedZone.message) {
+const onDeleteClient = async (clientId: number) => {
+  if (!confirm('¿Estás seguro de eliminar este cliente?')) return
+  const deletedClient = await deleteClient(clientId)
+  if (deletedClient.error) {
     return useToast({
       title: 'Error',
-      text: deletedZone.message,
+      text: deletedClient.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
     })
   }
   useToast({
-    title: 'Zona eliminada',
-    text: 'La zona ha sido eliminada correctamente',
+    title: 'Cliente eliminado',
+    text: 'El cliente ha sido eliminado correctamente',
     status: 'success',
     autotimeout: 5000,
     autoclose: true,
   })
-  zones.value = zones.value?.filter(zone => zone.id !== zoneId)
+  clients.value = clients.value?.filter(client => client.id !== clientId)
 }
 
 
 onMounted(async () => {
-  zones.value = await getZones()
+  clients.value = await getClients().then((res) => res.data as IClient[])
+  zones.value = await getZones().then((res) => res.data as IZone[])
 
   autocompleter.value = new GeocoderAutocomplete(autocomplete.value!, config.public.GEOAPIFY_API_KEY)
 
   autocompleter.value.on('select', location => {
     console.log(location)
-  })
-
-  autocompleter.value.on('suggestions', suggestions => {
-    console.log(suggestions)
-  })
-
-  autocompleter.value.on('close', close => {
-    console.log(close)
+    clientAddress.value = location.properties.formatted
+    clientLat.value = String(location.properties.lat)
+    clientLng.value = String(location.properties.lon)
   })
 })
 </script>

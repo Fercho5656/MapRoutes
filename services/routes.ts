@@ -1,4 +1,3 @@
-import { PostgrestError } from '@supabase/supabase-js'
 import IRoute from "~~/interfaces/IRoute"
 import ISupabaseQuery from '~~/interfaces/ISupabaseQuery'
 
@@ -8,7 +7,6 @@ export const getRoutes = async (): Promise<ISupabaseQuery<IRoute>> => {
     .from<IRoute>('route')
     .select('*, seller: seller_id(*)')
     .order('id', { ascending: true })
-  console.log(data)
   return { data, error }
 }
 
@@ -20,6 +18,7 @@ export const addRoute = async (route: IRoute): Promise<ISupabaseQuery<IRoute>> =
       ...route,
     })
     .select('*, seller: seller_id(*)')
+    .single()
   return { data, error }
 }
 
@@ -30,6 +29,7 @@ export const updateRoute = async (routeId: number, newRoute: IRoute): Promise<IS
     .update(newRoute)
     .match({ id: routeId })
     .select('*, seller: seller_id(*)')
+    .single()
   return { data, error }
 }
 

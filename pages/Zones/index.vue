@@ -118,10 +118,10 @@ const onDeleteSelected = async () => {
 
 const onAddZone = async () => {
   const newZone = await addZone({ name: zoneName.value })
-  if (newZone.message) {
+  if (newZone.error) {
     return useToast({
       title: 'Error',
-      text: newZone.message,
+      text: newZone.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -135,7 +135,7 @@ const onAddZone = async () => {
     autotimeout: 5000,
     autoclose: true,
   })
-  zones.value?.push(newZone)
+  zones.value?.push(newZone.data as IZone)
   showZoneModal.value = false
   zoneName.value = ''
 }
@@ -148,10 +148,10 @@ const onBeforeUpdateZone = (zoneId: number) => {
 
 const onUpdateZone = async () => {
   const updatedZone = await updateZone(zoneToEdit.value!, { name: zoneName.value })
-  if (updatedZone.message) {
+  if (updatedZone.error) {
     return useToast({
       title: 'Error',
-      text: updatedZone.message,
+      text: updatedZone.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -164,7 +164,7 @@ const onUpdateZone = async () => {
     autotimeout: 5000,
     autoclose: true,
   })
-  zones.value = zones.value?.map((zone) => zone.id === zoneToEdit.value ? updatedZone : zone)
+  zones.value = zones.value?.map((zone: IZone) => zone.id === zoneToEdit.value ? updatedZone.data as IZone : zone)
   showEditZoneModal.value = false
   zoneName.value = ''
   zoneToEdit.value = 0
@@ -173,10 +173,10 @@ const onUpdateZone = async () => {
 const onDeleteZone = async (zoneId: number) => {
   if (!confirm('¿Estás seguro de eliminar esta zona?')) return
   const deletedZone = await deleteZone(zoneId)
-  if (deletedZone.message) {
+  if (deletedZone.error) {
     return useToast({
       title: 'Error',
-      text: deletedZone.message,
+      text: deletedZone.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -193,7 +193,7 @@ const onDeleteZone = async (zoneId: number) => {
 }
 
 onMounted(async () => {
-  zones.value = await getZones()
+  zones.value = await getZones().then((res) => res.data as IZone[])
 })
 </script>
 

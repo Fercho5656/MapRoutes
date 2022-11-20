@@ -163,10 +163,10 @@ const onDeleteSelected = async () => {
 
 const onAddRoute = async () => {
   const newRoute = await addRoute({ name: routeName.value, seller_id: routeSellerId.value })
-  if (newRoute.message) {
+  if (newRoute.error) {
     return useToast({
       title: 'Error',
-      text: newRoute.message,
+      text: newRoute.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -180,7 +180,7 @@ const onAddRoute = async () => {
     autotimeout: 5000,
     autoclose: true,
   })
-  routes.value?.push(newRoute)
+  routes.value?.push(newRoute.data as IRoute)
   showRouteModal.value = false
   routeName.value = ''
   routeSellerId.value = 0
@@ -196,10 +196,10 @@ const onBeforeUpdateRoute = (routeId: number) => {
 
 const onUpdateRoute = async () => {
   const updatedRoute = await updateRoute(routeToEdit.value!, { name: routeName.value, seller_id: routeSellerId.value, is_completed: routeIsCompleted.value })
-  if (updatedRoute.message) {
+  if (updatedRoute.error) {
     return useToast({
       title: 'Error',
-      text: updatedRoute.message,
+      text: updatedRoute.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -212,7 +212,7 @@ const onUpdateRoute = async () => {
     autotimeout: 5000,
     autoclose: true,
   })
-  routes.value = routes.value?.map((route) => route.id === routeToEdit.value ? updatedRoute : route)
+  routes.value = routes.value?.map((route: IRoute) => route.id === routeToEdit.value ? updatedRoute.data as IRoute : route)
   showEditRouteModal.value = false
   routeName.value = ''
   routeToEdit.value = 0
@@ -221,10 +221,10 @@ const onUpdateRoute = async () => {
 const onDeleteRoute = async (routeId: number) => {
   if (!confirm('¿Estás seguro de eliminar esta ruta?')) return
   const deletedRoute = await deleteRoute(routeId)
-  if (deletedRoute.message) {
+  if (deletedRoute.error) {
     return useToast({
       title: 'Error',
-      text: deletedRoute.message,
+      text: deletedRoute.error.message,
       status: 'error',
       autotimeout: 5000,
       autoclose: true,
@@ -241,8 +241,8 @@ const onDeleteRoute = async (routeId: number) => {
 }
 
 onMounted(async () => {
-  routes.value = await getRoutes()
-  sellers.value = await getSellers()
+  routes.value = await getRoutes().then((res) => res.data as IRoute[])
+  sellers.value = await getSellers().then((res) => res.data as ISeller[])
 })
 </script>
 
