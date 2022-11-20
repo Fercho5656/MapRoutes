@@ -1,18 +1,18 @@
 import { PostgrestError } from '@supabase/supabase-js'
 import IRoute from "~~/interfaces/IRoute"
+import ISupabaseQuery from '~~/interfaces/ISupabaseQuery'
 
-export const getRoutes = async (): Promise<IRoute[] | PostgrestError> => {
+export const getRoutes = async (): Promise<ISupabaseQuery<IRoute>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IRoute>('route')
     .select('*, seller: seller_id(*)')
     .order('id', { ascending: true })
   console.log(data)
-  if (error) return error
-  return data
+  return { data, error }
 }
 
-export const addRoute = async (route: IRoute): Promise<IRoute | PostgrestError> => {
+export const addRoute = async (route: IRoute): Promise<ISupabaseQuery<IRoute>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IRoute>('route')
@@ -20,27 +20,24 @@ export const addRoute = async (route: IRoute): Promise<IRoute | PostgrestError> 
       ...route,
     })
     .select('*, seller: seller_id(*)')
-  if (error) return error
-  return data[0]
+  return { data, error }
 }
 
-export const updateRoute = async (routeId: number, newRoute: IRoute): Promise<IRoute | PostgrestError> => {
+export const updateRoute = async (routeId: number, newRoute: IRoute): Promise<ISupabaseQuery<IRoute>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IRoute>('route')
     .update(newRoute)
     .match({ id: routeId })
     .select('*, seller: seller_id(*)')
-  if (error) return error
-  return data[0]
+  return { data, error }
 }
 
-export const deleteRoute = async (routeId: number): Promise<IRoute | PostgrestError> => {
+export const deleteRoute = async (routeId: number): Promise<ISupabaseQuery<IRoute>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IRoute>('route')
     .delete()
     .match({ id: routeId })
-  if (error) return error
-  return data[0]
+  return { data, error }
 }

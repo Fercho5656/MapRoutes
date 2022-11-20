@@ -1,45 +1,42 @@
 import { PostgrestError } from '@supabase/supabase-js'
+import ISupabaseQuery from '~~/interfaces/ISupabaseQuery'
 import IZone from "~~/interfaces/IZone"
 
-export const getZones = async (): Promise<IZone[] | PostgrestError> => {
+export const getZones = async (): Promise<ISupabaseQuery<IZone>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IZone>('zone')
     .select('*')
     .order('name', { ascending: true })
 
-  if (error) return error
-  return data
+  return { data, error }
 }
 
-export const addZone = async (zone: IZone): Promise<IZone | PostgrestError> => {
+export const addZone = async (zone: IZone): Promise<ISupabaseQuery<IZone>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IZone>('zone')
     .insert(zone)
 
-  if (error) return error
-  return data[0]
+  return { data, error }
 }
 
-export const updateZone = async (zoneId: number, newZone: IZone): Promise<IZone | PostgrestError> => {
+export const updateZone = async (zoneId: number, newZone: IZone): Promise<ISupabaseQuery<IZone>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IZone>('zone')
     .update(newZone)
     .eq('id', zoneId)
 
-  if (error) return error
-  return data[0]
+  return { data, error }
 }
 
-export const deleteZone = async (zoneId: number): Promise<IZone | PostgrestError> => {
+export const deleteZone = async (zoneId: number): Promise<ISupabaseQuery<IZone>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
     .from<IZone>('zone')
     .delete()
     .eq('id', zoneId)
 
-  if (error) return error
-  return data[0]
+  return { data, error }
 }

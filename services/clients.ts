@@ -1,13 +1,12 @@
-import {PostgrestError} from '@supabase/supabase-js'
 import IClient from "~~/interfaces/IClient"
+import ISupabaseQuery from '~~/interfaces/ISupabaseQuery'
 
-export const getClients = async (): {Promise<IClient[]> | Promise<PostgrestError>} => {
+export const getClients = async (): Promise<ISupabaseQuery<IClient>> => {
   const client = useSupabaseClient()
 
   const { data, error } = await client
     .from<IClient>('client')
     .select('*')
 
-  if (error) return error
-  return data
+  return { data, error }
 }

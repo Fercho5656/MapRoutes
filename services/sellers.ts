@@ -1,17 +1,17 @@
 import { PostgrestError } from '@supabase/supabase-js'
 import ISeller from '~~/interfaces/ISeller'
+import ISupabaseQuery from '~~/interfaces/ISupabaseQuery'
 
-export const getSellers = async (): Promise<ISeller[] | PostgrestError> => {
+export const getSellers = async (): Promise<ISupabaseQuery<ISeller>> => {
   const client = useSupabaseClient()
 
   const { error, data } = await client
     .from('seller')
     .select('*')
-  if (error) return error
-  return data
+  return { data, error }
 }
 
-export const addSeller = async (seller: ISeller): Promise<ISeller | PostgrestError> => {
+export const addSeller = async (seller: ISeller): Promise<ISupabaseQuery<ISeller>> => {
   const client = useSupabaseClient()
 
   const { data, error } = await client
@@ -21,11 +21,10 @@ export const addSeller = async (seller: ISeller): Promise<ISeller | PostgrestErr
     })
     .select()
 
-  if (error) return error
-  return data[0]
+  return { data, error }
 }
 
-export const updateSeller = async (sellerId: number, newSeller: ISeller): Promise<ISeller | PostgrestError> => {
+export const updateSeller = async (sellerId: number, newSeller: ISeller): Promise<ISupabaseQuery<ISeller>> => {
   const client = useSupabaseClient()
 
   const { data, error } = await client
@@ -36,11 +35,10 @@ export const updateSeller = async (sellerId: number, newSeller: ISeller): Promis
     .eq('id', sellerId)
     .select()
 
-  if (error) return error
-  return data[0]
+  return { data, error }
 }
 
-export const deleteSeller = async (sellerId: number): Promise<ISeller | PostgrestError> => {
+export const deleteSeller = async (sellerId: number): Promise<ISupabaseQuery<ISeller>> => {
   const client = useSupabaseClient()
 
   const { data, error } = await client
@@ -49,6 +47,5 @@ export const deleteSeller = async (sellerId: number): Promise<ISeller | Postgres
     .eq('id', sellerId)
     .select()
 
-  if (error) return error
-  return data[0]
+  return { data, error }
 }
