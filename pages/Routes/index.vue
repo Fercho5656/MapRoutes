@@ -3,21 +3,36 @@
     <f-modal :show="showRouteModal" @close="showRouteModal = false">
       <div class="flex flex-col gap-y-5">
         <p class="text-center text-2xl dark:text-gray-200">Nueva Ruta</p>
-        <div class="flex flex-col gap-y-3">
+        <form ref="formRef" @submit.prevent="onAddRoute" class="flex flex-col gap-y-3">
           <div class="flex gap-x-3">
             <label class="dark:text-gray-200 text-lg">Nombre de la Ruta</label>
-            <input @keyup.enter="onAddRoute" type="text" v-model="routeName" />
+            <input type="text" v-model="routeName" />
           </div>
-          <div class="flex gap-x-3 justify-between">
-            <label class="dark:text-gray-200 text-lg">Vendedor</label>
-            <select v-model="routeSellerId">
+          <div class="flex gap-x-3 justify-between flex-1">
+            <label class="dark:text-gray-200 text-lg w-full">Vendedor</label>
+            <select class="w-full" v-model="routeSellerId">
               <option v-for="seller in sellers" :value="seller.id" :key="seller.id">
                 {{ seller.name }}
               </option>
             </select>
           </div>
-        </div>
-        <f-button @click.once="onAddRoute">Añadir Ruta</f-button>
+          <div class="flex flex-col gap-3 justify-between flex-1">
+            <header class="flex w-full justify-between align-center">
+              <p class="dark:text-white text-lg font-semibold">Destinos</p>
+              <f-button color="primary" type="button" @click="addDestination">Añadir Destino</f-button>
+            </header>
+            <div class="flex w-full flex-1" v-for="(destination, index) in destinations" :key="destination">
+              <label class="dark:text-gray-200 text-lg w-full">Destino {{ index + 1 }}</label>
+              <select v-model="destinations[index]" :name='`destino-${index}`' class="w-full">
+                <option v-for="client in clients" :value="client.id" :key="client.id">
+                  {{ client.name }}
+                </option>
+              </select>
+              <f-button type="button" color="danger" @click="deleteDestination(index)">X</f-button>
+            </div>
+          </div>
+          <f-button type="submit">Añadir Ruta</f-button>
+        </form>
       </div>
     </f-modal>
     <f-modal :show="showEditRouteModal" @close="showEditRouteModal = false">
@@ -26,7 +41,7 @@
         <div class="flex flex-col gap-y-3">
           <div class="flex gap-x-3">
             <label class="dark:text-gray-200 text-lg">Nombre de la Ruta</label>
-            <input @keyup.enter="onAddRoute" type="text" v-model="routeName" />
+            <input type="text" v-model="routeName" />
           </div>
           <div class="flex gap-x-3 justify-between">
             <label class="dark:text-gray-200 text-lg">Vendedor</label>
@@ -121,9 +136,12 @@
 
 <script setup lang="ts">
 import { PencilIcon, TrashIcon, ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import IClient from '~~/interfaces/IClient';
 import IRoute from '~~/interfaces/IRoute';
 import ISeller from '~~/interfaces/ISeller';
+import { getClients } from '~~/services/clients';
 import { getRoutes, addRoute, deleteRoute, updateRoute } from '~~/services/routes'
+import { addClientRoute } from '~~/services/clientRoute';
 import { getSellers } from '~~/services/sellers';
 useHead({
   title: 'Rutas'
@@ -138,6 +156,9 @@ const showEditRouteModal = ref<boolean>(false)
 const routeName = ref<string>('')
 const routeSellerId = ref<number>(0)
 const routeIsCompleted = ref<boolean>(false)
+const clients = ref<IClient[]>([])
+const destinations = ref<number[]>([1])
+const formRef = ref<HTMLFormElement>()
 
 const onAddSelected = (routeId: number) => {
   if (selectedRoutes.value.includes(routeId)) {
@@ -161,8 +182,16 @@ const onDeleteSelected = async () => {
   selectedRoutes.value = []
 }
 
-const onAddRoute = async () => {
+const onAddRoute = async (e: Event) => {
+
+  console.log(destinations.value)
+
   const newRoute = await addRoute({ name: routeName.value, seller_id: routeSellerId.value })
+
+  await Promise.all(destinations.value.map((destination, idx) => {
+    return addClientRoute({ order: idx, client_id: destination, route_id: (newRoute.data as IRoute).id! })
+  }))
+
   if (newRoute.error) {
     return useToast({
       title: 'Error',
@@ -184,6 +213,7 @@ const onAddRoute = async () => {
   showRouteModal.value = false
   routeName.value = ''
   routeSellerId.value = 0
+  destinations.value = [1]
 }
 
 const onBeforeUpdateRoute = (routeId: number) => {
@@ -240,9 +270,26 @@ const onDeleteRoute = async (routeId: number) => {
   routes.value = routes.value?.filter(zone => zone.id !== routeId)
 }
 
+const addDestination = () => {
+  destinations.value.push(1)
+}
+
+const updateDestiny = (index: number, event: Event) => {
+  destinations.value[index] = clients.value.find((client) => client.id === parseInt((event.target as HTMLInputElement).value))!.id!
+  console.log(destinations.value)
+}
+
+const deleteDestination = (destinationIdx: number) => {
+  console.log(destinationIdx)
+  console.log(destinations.value)
+  destinations.value = destinations.value.slice(0, destinationIdx).concat(destinations.value.slice(destinationIdx + 1))
+  console.log(destinations.value)
+}
+
 onMounted(async () => {
   routes.value = await getRoutes().then((res) => res.data as IRoute[])
   sellers.value = await getSellers().then((res) => res.data as ISeller[])
+  clients.value = await getClients().then((res) => res.data as IClient[])
 })
 </script>
 
