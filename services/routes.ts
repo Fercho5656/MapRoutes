@@ -10,6 +10,17 @@ export const getRoutes = async (): Promise<ISupabaseQuery<IRoute>> => {
   return { data, error }
 }
 
+export const getRoute = async (routeId: number): Promise<ISupabaseQuery<IRoute>> => {
+  const client = useSupabaseClient()
+  const { data, error } = await client
+    .from<IRoute>('route')
+    .select('*, seller: seller_id(*)')
+    .eq('id', routeId)
+    .single()
+  
+  return { data, error }
+}
+
 export const addRoute = async (route: IRoute): Promise<ISupabaseQuery<IRoute>> => {
   const client = useSupabaseClient()
   const { data, error } = await client
