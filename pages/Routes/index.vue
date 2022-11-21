@@ -123,6 +123,9 @@
                 <!-- Modal toggle -->
                 <PencilIcon />
               </button>
+              <nuxt-link :to='`/routes/${route.id}`' class="h-7 w-7 text-green-500">
+                <MapIcon />
+              </nuxt-link>
               <button @click="onDeleteRoute(route.id!)" class="h-7 w-7 text-red-500">
                 <TrashIcon />
               </button>
@@ -135,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { PencilIcon, TrashIcon, ArrowLeftIcon } from '@heroicons/vue/24/solid';
+import { PencilIcon, TrashIcon, MapIcon, ArrowLeftIcon } from '@heroicons/vue/24/solid';
 import IClient from '~~/interfaces/IClient';
 import IRoute from '~~/interfaces/IRoute';
 import ISeller from '~~/interfaces/ISeller';
