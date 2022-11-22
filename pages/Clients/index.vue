@@ -19,7 +19,7 @@
             </option>
           </select>
         </div>
-        <f-button @click.once="onAddClient">Añadir Cliente</f-button>
+        <f-button @click="onAddClient">Añadir Cliente</f-button>
       </div>
     </f-modal>
     <f-modal :show="showEditClientModal" @close="showEditClientModal = false">
@@ -180,6 +180,7 @@ const onAddClient = async () => {
   clients.value?.push(newClient.data as IClient)
   showClientModal.value = false
   clientName.value = ''
+  autocompleter.value?.setValue('')
 }
 
 const onBeforeUpdateClient = (clientId: number) => {
@@ -240,7 +241,6 @@ onMounted(async () => {
   zones.value = await getZones().then((res) => res.data as IZone[])
 
   autocompleter.value = new GeocoderAutocomplete(autocomplete.value!, config.public.GEOAPIFY_API_KEY)
-
   autocompleter.value.on('select', location => {
     console.log(location)
     clientAddress.value = location.properties.formatted
