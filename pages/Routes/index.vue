@@ -277,11 +277,6 @@ const addDestination = () => {
   destinations.value.push(1)
 }
 
-const updateDestiny = (index: number, event: Event) => {
-  destinations.value[index] = clients.value.find((client) => client.id === parseInt((event.target as HTMLInputElement).value))!.id!
-  console.log(destinations.value)
-}
-
 const deleteDestination = (destinationIdx: number) => {
   console.log(destinationIdx)
   console.log(destinations.value)
