@@ -30,7 +30,6 @@ export const getClientsByRoute = async (routeId: number): Promise<ISupabaseQuery
     .select("*, client:client_id (*), route:route_id (*)")
     .eq("route_id", routeId)
     .order("order", { ascending: true })
-    .order("client_id", { ascending: true })
 
   return { data, error }
 }
