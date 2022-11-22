@@ -10,6 +10,9 @@ export default defineNuxtConfig({
     },
     '/clients/**': {
       ssr: true,
+    },
+    '/routes/**': {
+      ssr: false,
     }
   },
   runtimeConfig: {
