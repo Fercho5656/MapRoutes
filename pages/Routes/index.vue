@@ -16,19 +16,40 @@
               </option>
             </select>
           </div>
-          <div class="flex flex-col gap-3 justify-between flex-1">
-            <header class="flex w-full justify-between align-center">
-              <p class="dark:text-white text-lg font-semibold">Destinos</p>
-              <f-button color="primary" type="button" @click="addDestination">Añadir Destino</f-button>
-            </header>
-            <div class="flex w-full flex-1" v-for="(destination, index) in destinations" :key="destination">
-              <label class="dark:text-gray-200 text-lg w-full">Destino {{ index + 1 }}</label>
-              <select v-model="destinations[index]" :name='`destino-${index}`' class="w-full">
-                <option v-for="client in clients" :value="client.id" :key="client.id">
-                  {{ client.name }}
-                </option>
-              </select>
-              <f-button type="button" color="danger" @click="deleteDestination(index)">X</f-button>
+          <div class="flex gap-x-3 items-start justify-start">
+            <div class="flex flex-col items-start justify-start gap-3">
+              <header class="flex w-full justify-between items-center">
+                <p class="dark:text-white text-lg font-semibold">Destinos</p>
+                <f-button color="primary" type="button" @click="addDestination">Añadir Destino</f-button>
+              </header>
+              <div class="flex w-full flex-1" v-for="(destination, index) in destinations" :key="destination">
+                <label class="dark:text-gray-200 text-lg w-full">Destino {{ index + 1 }}</label>
+                <select v-model="destinations[index]" :name='`destino-${index}`' class="w-full">
+                  <option v-for="client in clients" :value="client.id" :key="client.id">
+                    {{ client.name }}
+                  </option>
+                </select>
+                <f-button type="button" color="danger" @click="deleteDestination(index)">X</f-button>
+              </div>
+            </div>
+            <div class="flex flex-col items-start justify-start gap-3">
+              <header class="flex w-full justify-between items-center">
+                <p class="dark:text-white text-lg font-semibold">Productos</p>
+                <f-button color="primary" type="button" @click="addProduct">Añadir Producto</f-button>
+              </header>
+              <div class="flex w-full flex-1" v-for="(productToAdd, index) in productsToAdd" :key="productToAdd">
+                <label class="dark:text-gray-200 text-lg w-full">Producto {{ index + 1 }}</label>
+                <select v-model="productsToAdd[index]" :name='`producto-${index}`' class="w-full">
+                  <option v-for="product in products" :value="product.id" :key="product.id">
+                    {{ product.name }}
+                  </option>
+                </select>
+                <div class=" flex flex-col">
+                  <p class="dark:text-gray-200 text-lg w-full">Cantidad</p>
+                  <input class="w-16" type="number" min="1" step="1" v-model="productsToAddQuantity[index]">
+                </div>
+                <f-button type="button" color="danger" @click="deleteProduct(index)">X</f-button>
+              </div>
             </div>
           </div>
           <f-button type="submit">Añadir Ruta</f-button>
@@ -143,9 +164,12 @@ import IClient from '~~/interfaces/IClient';
 import IRoute from '~~/interfaces/IRoute';
 import ISeller from '~~/interfaces/ISeller';
 import { getClients } from '~~/services/clients';
+import { getProducts } from '~~/services/products';
 import { getRoutes, addRoute, deleteRoute, updateRoute } from '~~/services/routes'
 import { addClientRoute } from '~~/services/clientRoute';
+import { addProductRoute } from '~~/services/productRoute';
 import { getSellers } from '~~/services/sellers';
+import IProduct from '~~/interfaces/IProduct';
 useHead({
   title: 'Rutas'
 })
@@ -161,7 +185,10 @@ const routeSellerId = ref<number>(0)
 const routeIsCompleted = ref<boolean>(false)
 const clients = ref<IClient[]>([])
 const destinations = ref<number[]>([1])
+const productsToAdd = ref<number[]>([1])
+const productsToAddQuantity = ref<number[]>([1])
 const formRef = ref<HTMLFormElement>()
+const products = ref<IProduct[]>([])
 
 const onAddSelected = (routeId: number) => {
   if (selectedRoutes.value.includes(routeId)) {
@@ -192,7 +219,8 @@ const onAddRoute = async (e: Event) => {
   const newRoute = await addRoute({ name: routeName.value, seller_id: routeSellerId.value })
 
   await Promise.all(destinations.value.map((destination, idx) => {
-    return addClientRoute({ order: idx, client_id: destination, route_id: (newRoute.data as IRoute).id! })
+    addProductRoute({ route_id: (newRoute.data as IRoute).id, product_id: productsToAdd.value[idx], quantity: productsToAddQuantity.value[idx] })
+    addClientRoute({ order: idx, client_id: destination, route_id: (newRoute.data as IRoute).id! })
   }))
 
   if (newRoute.error) {
@@ -284,10 +312,23 @@ const deleteDestination = (destinationIdx: number) => {
   console.log(destinations.value)
 }
 
+const addProduct = () => {
+  productsToAdd.value.push(1)
+  productsToAddQuantity.value.push(1)
+}
+
+const deleteProduct = (productIdx: number) => {
+  productsToAdd.value = productsToAdd.value.slice(0, productIdx).concat(productsToAdd.value.slice(productIdx + 1))
+  productsToAddQuantity.value = productsToAddQuantity.value.slice(0, productIdx).concat(productsToAddQuantity.value.slice(productIdx + 1))
+}
+
 onMounted(async () => {
-  routes.value = await getRoutes().then((res) => res.data as IRoute[])
-  sellers.value = await getSellers().then((res) => res.data as ISeller[])
-  clients.value = await getClients().then((res) => res.data as IClient[])
+  await Promise.all([getRoutes(), getSellers(), getClients(), getProducts()]).then((values) => {
+    routes.value = values[0].data as IRoute[]
+    sellers.value = values[1].data as ISeller[]
+    clients.value = values[2].data as IClient[]
+    products.value = values[3].data as IProduct[]
+  })
 })
 </script>
 
