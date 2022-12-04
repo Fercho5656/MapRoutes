@@ -1,5 +1,5 @@
 <template>
-  <div class="h-1/2 p-5 grid grid-cols-2 grid-rows-2 gap-5">
+  <div class="h-1/2 p-5 grid grid-cols-2 sm:grid-cols-3 gap-5">
     <!-- <button @click="toggleDark()"> 
       Change
     </button> -->
@@ -19,13 +19,19 @@
       <MapPinIcon v:slot="icon" />
       <p class="dark:text-gray-200 font-semibold text-xl">Zonas</p>
     </card>
+    <card route="/products">
+      <ArchiveBoxIcon v:slot="icon" />
+      <p class="dark:text-gray-200 font-semibold text-xl">Productos</p>
+    </card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MapIcon, MapPinIcon, UserGroupIcon, UserIcon } from '@heroicons/vue/24/solid'
+import { MapIcon, MapPinIcon, UserGroupIcon, UserIcon, ArchiveBoxIcon } from '@heroicons/vue/24/solid'
 
-
+definePageMeta({
+  layout: 'index',
+})
 </script>
 
 <style scoped>
