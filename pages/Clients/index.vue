@@ -29,7 +29,7 @@
           <label class="dark:text-gray-200 text-lg">Nombre de la zona</label>
           <input @keyup.enter="onUpdateClient" type="text" v-model="clientName" />
         </div>
-        <f-button @click.once="onUpdateClient">Editar Zona</f-button>
+        <f-button @click="onUpdateClient">Editar Zona</f-button>
       </div>
     </f-modal>
     <header class="w-full relative flex gap-x-5 justify-center items-start">

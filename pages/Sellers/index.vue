@@ -7,7 +7,7 @@
           <label class="dark:text-gray-200 text-lg">Nombre del vendedor</label>
           <input @keyup.enter="onAddSeller" type="text" v-model="sellerName" />
         </div>
-        <f-button @click.once="onAddSeller">Añadir Vendedor</f-button>
+        <f-button @click="onAddSeller">Añadir Vendedor</f-button>
       </div>
     </f-modal>
     <f-modal :show="showEditSellerModal" @close="showEditSellerModal = false">
@@ -17,7 +17,7 @@
           <label class="dark:text-gray-200 text-lg">Nombre del vendedor</label>
           <input @keyup.enter="onUpdateSeller" type="text" v-model="sellerName" />
         </div>
-        <f-button @click.once="onUpdateSeller">Editar Vendedor</f-button>
+        <f-button @click="onUpdateSeller">Editar Vendedor</f-button>
       </div>
     </f-modal>
     <header class="w-full relative flex gap-x-5 justify-center items-start">

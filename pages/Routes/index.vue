@@ -56,7 +56,7 @@
             <input type="checkbox" v-model="routeIsCompleted">
           </div>
         </div>
-        <f-button @click.once="onUpdateRoute">Editar Ruta</f-button>
+        <f-button @click="onUpdateRoute">Editar Ruta</f-button>
       </div>
     </f-modal>
     <header class="w-full relative flex gap-x-5 justify-center items-start">
